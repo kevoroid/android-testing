@@ -1,4 +1,5 @@
-load("@gmaven_rules//:defs.bzl", "gmaven_artifact")
+load("@rules_jvm_external//:defs.bzl", "artifact")
+load("//:common_defs.bzl", "minSdkVersion", "targetSdkVersion")
 
 licenses(["notice"])  # Apache 2.0
 
@@ -9,9 +10,9 @@ android_library(
     manifest = "app/src/main/AndroidManifest.xml",
     resource_files = glob(["app/src/main/res/**/*"]),
     deps = [
-        gmaven_artifact("com.android.support:support-annotations:27.0.2"),
-        gmaven_artifact("com.android.support.test.espresso:espresso-idling-resource:aar:3.0.1"),
-        "@com_google_guava_guava//jar",
+        artifact("androidx.annotation:annotation"),
+        artifact("androidx.test.espresso:espresso-idling-resource"),
+        artifact("com.google.guava:guava"),
     ],
 )
 
@@ -19,15 +20,19 @@ android_binary(
     name = "IdlingResourceSample",
     custom_package = "com.example.android.testing.espresso.IdlingResourceSample",
     manifest = "app/src/main/AppManifest.xml",
+    manifest_values = {
+        "minSdkVersion": minSdkVersion,
+        "targetSdkVersion": targetSdkVersion,
+    },
     deps = [":IdlingResourceSampleLib"],
 )
 
 android_library(
     name = "IdlingResourceSampleTestLib",
     srcs = glob(["app/src/androidTest/**/*.java"]),
-    custom_package = "com.example.android.testing.espresso.IdlingResourceSample",
+    custom_package = "com.example.android.testing.espresso.IdlingResourceSample.test",
     deps = [
-        gmaven_artifact("com.android.support.test.espresso:espresso_idling_resource:aar:3.0.1"),
+        artifact("androidx.test.espresso:espresso_idling_resource"),
         ":IdlingResourceSampleLib",
         "//:test_deps",
     ],
@@ -35,9 +40,13 @@ android_library(
 
 android_binary(
     name = "IdlingResourceSampleTest",
-    custom_package = "com.example.android.testing.espresso.IdlingResourceSample",
+    custom_package = "com.example.android.testing.espresso.IdlingResourceSample.test",
     instruments = ":IdlingResourceSample",
     manifest = "app/src/androidTest/AndroidManifest.xml",
+    manifest_values = {
+        "minSdkVersion": minSdkVersion,
+        "targetSdkVersion": targetSdkVersion,
+    },
     deps = [":IdlingResourceSampleTestLib"],
 )
 
